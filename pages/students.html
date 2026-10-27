@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Students</title>
+    <link rel="stylesheet" href="styles/style.css" />
+    <link rel="stylesheet" href="styles/students.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Students</h1>
+      <p>Welcome to the Students page!</p>
+      <div class="form-group">
+        <label for="student-name">Student Name:</label>
+        <input
+          class="input"
+          type="text"
+          id="student-name"
+          placeholder="Enter student name"
+        />
+        <label for="student-age">Student Age:</label>
+        <input
+          class="input"
+          type="text"
+          id="student-age"
+          placeholder="Enter student age"
+        />
+        <div class="form-actions">
+          <button id="cancel-update" class="cancel-button" onclick="cancelUpdate()">Cancel</button>
+          <button id="submit-button" class="add-button" onclick="addStudent()">
+            Add Student
+          </button>
+        </div>
+        <p id="form-error-message" class="form-error-message"></p>
+      </div>
+
+      <div class="student-list-container">
+        <h2>Student List</h2>
+        `
+        <p id="student-empty-message" style="display: block">
+          You have not added any students yet.
+        </p>
+        <ul id="student-list"></ul>
+      </div>
+    </div>
+    <script>
+      const nameInput = document.getElementById("student-name");
+      const ageInput = document.getElementById("student-age");
+      const submitButton = document.getElementById("submit-button");
+      const cancelButton = document.getElementById("cancel-update");
+
+      let editStudentIndex = null;
+
+      const students = [];
+
+      students.push({ name: "John Doe", age: 20 });
+      students.push({ name: "Jane Smith", age: 22 });
+      students.push({ name: "Alice Johnson", age: 19 });
+
+      displayStudents();
+
+      function addStudent() {
+        const errorMessage = document.getElementById("form-error-message");
+        errorMessage.style.display = "none";
+
+        const name = nameInput.value.trim();
+        const age = ageInput.value.trim();
+
+        if (name === "" || age === "") {
+          errorMessage.textContent = "Please fill in both fields.";
+          errorMessage.style.display = "block";
+          return;
+        }
+
+        if (isNaN(age) || parseInt(age) <= 0) {
+          errorMessage.textContent = "Please enter a valid age.";
+          errorMessage.style.display = "block";
+          return;
+        }
+
+        if (editStudentIndex !== null) {
+          students[editStudentIndex] = { name: name, age: parseInt(age) };
+          editStudentIndex = null;
+          submitButton.textContent = "Add Student";
+          cancelButton.style.display = "none";
+        } else {
+          students.push({ name: name, age: parseInt(age) });
+        }
+        displayStudents();
+
+        // Clear input fields and error message
+        nameInput.value = "";
+        ageInput.value = "";
+        errorMessage.textContent = "";
+      }
+
+      function displayStudents() {
+        const studentList = document.getElementById("student-list");
+        const studentEmptyMessage = document.getElementById(
+          "student-empty-message",
+        );
+
+        studentList.innerHTML = "";
+
+        if (students.length === 0) {
+          studentEmptyMessage.style.display = "block";
+          return;
+        } else {
+          studentEmptyMessage.style.display = "none";
+        }
+
+        students.forEach((student, index) => {
+          const listItem = document.createElement("li");
+          listItem.innerHTML = `
+                <div class="student-card">
+                    <span class="student-name-text">${student.name}</span>
+                    <span class="student-age-text">Age: ${student.age}</span>
+                    <div class="student-actions">
+                        <button class="edit-button">Edit</button>
+                        <button class="remove-button">Remove</button>
+                    </div>
+                </div>
+            `;
+
+          listItem
+            .querySelector(".edit-button")
+            .addEventListener("click", () => editStudent(index));
+          listItem.querySelector(".remove-button").addEventListener("click", () => removeStudent(index));
+          studentList.appendChild(listItem);
+        });
+      }
+
+      function editStudent(index) {
+        const student = students[index];
+        submitButton.textContent = "Update Student";
+        cancelButton.style.display = "inline-block";
+
+        editStudentIndex = index;
+
+        nameInput.value = student.name;
+        ageInput.value = student.age;
+
+        const newName = nameInput.value.trim();
+        const newAge = ageInput.value.trim();
+
+      
+      }
+
+      function removeStudent(index) {
+        students.splice(index, 1);
+        displayStudents();
+      }
+
+        function cancelUpdate() {
+            nameInput.value = "";
+            ageInput.value = "";
+            submitButton.textContent = "Add Student";
+            cancelButton.style.display = "none";
+        }
+    </script>
+  </body>
+</html>

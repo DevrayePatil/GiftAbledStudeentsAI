@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library</title>
+    <link rel="stylesheet" href="styles/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1 class="title">Library</h1>
+      </div>
+      <p>Welcome to the Library! Here you can add and manage your books.</p>
+
+      <div class="form-group">
+        <label for="title">Book Title:</label>
+        <input
+          class="input"
+          type="text"
+          id="title"
+          placeholder="Enter book title"
+        />
+        <label for="copies">Number of Copies:</label>
+        <input
+          class="input" 
+          type="text"
+          id="copies"
+          placeholder="Enter number of copies"
+        />
+        <button onclick="addBook()">Add Book</button>
+        <p id="form-error-message" class="form-error-message"></p>
+      </div>
+      <div class="book-list-container">
+        <h2>Book List</h2>
+        <p id="library-empty-message" style="display: block">
+          You have not added any books yet.
+        </p>
+        <ul id="book-list"></ul>
+      </div>
+      <h2>Borrowed Books List</h2>
+      <p id="borrowed-empty-message" style="display: block">
+        You have not borrowed any books yet.
+      </p>
+      <ul id="borrowed-book-list"></ul>
+    </div>
+  </body>
+
+  <script>
+    books = [];
+    borrowBooks = [];
+
+    books.push({ title: "Book 1", copies: 5 });
+    displayBooks();
+
+    function displayBooks() {
+      const bookList = document.getElementById("book-list");
+      const libraryEmptyMessage = document.getElementById(
+        "library-empty-message",
+      );
+      bookList.innerHTML = "";
+
+      if (books.length === 0) {
+        libraryEmptyMessage.style.display = "block";
+      } else {
+        libraryEmptyMessage.style.display = "none";
+      }
+
+      books.forEach((book) => {
+        const listItem = document.createElement("li");
+
+        listItem.innerHTML = `
+            <div class="book-card">
+                <span class="book-title-text">${book.title}</span>
+                <span class="book-copies-badge">${book.copies} Copies</span>
+                <div class="book-actions">
+                    <button class="delete-button">Delete</button>
+                    <button class="borrow-button">Borrow</button>
+                </div>
+            </div>
+        `;
+
+        listItem
+          .querySelector(".delete-button")
+          .addEventListener("click", () => deleteBook(book.title));
+        listItem
+          .querySelector(".borrow-button")
+          .addEventListener("click", () => borrowBook(book.title));
+
+        bookList.appendChild(listItem);
+      });
+    }
+
+    function displayBorrowedBooks() {
+      const borrowedBookList = document.getElementById("borrowed-book-list");
+      const borrowedEmptyMessage = document.getElementById(
+        "borrowed-empty-message",
+      );
+
+      borrowedBookList.innerHTML = "";
+
+      if (borrowBooks.length === 0) {
+        borrowedEmptyMessage.style.display = "block";
+      } else {
+        borrowedEmptyMessage.style.display = "none";
+      }
+
+      borrowBooks.forEach((book) => {
+        const listItem = document.createElement("li");
+        listItem.innerHTML = `
+            <div class="book-card">
+                <span class="book-title-text">${book.title}</span>
+                <div class="book-actions">
+                    <button class="return-button">Return</button>
+                </div>
+            </div>
+            `;
+
+        listItem
+          .querySelector(".return-button")
+          .addEventListener("click", () => returnBook(book.title));
+        borrowedBookList.appendChild(listItem);
+      });
+    }
+
+    function addBook() {
+      const title = document.getElementById("title").value;
+      const copies = document.getElementById("copies").value;
+      const formErrorMessage = document.getElementById("form-error-message");
+      const book = { title, copies };
+
+      if (title && !isNaN(copies) && copies > 0) {
+        formErrorMessage.style.display = "none";
+        existingBook = books.find((b) => b.title === title);
+        if (existingBook) {
+          existingBook.copies =
+            parseInt(existingBook.copies) + parseInt(copies);
+        } else {
+          books.push(book);
+        }
+        // Here you can add code to save the book information to a database or display it on the page
+        displayBooks();
+      } else {
+        document.getElementById("form-error-message").textContent =
+          "Please fill in both fields with valid values.";
+        formErrorMessage.style.display = "block";
+      }
+    }
+
+    function deleteBook(title) {
+      books = books.filter((book) => book.title !== title);
+      displayBooks();
+    }
+
+    function borrowBook(title) {
+      const book = books.find((b) => b.title === title);
+
+      const alreadyBorrowed = borrowBooks.find((b) => b.title === title);
+      if (alreadyBorrowed) {
+        alert("You have already borrowed this book.");
+        return;
+      }
+      if (book && book.copies > 0) {
+        borrowBooks.push({ title: book.title });
+        book.copies--;
+        displayBooks();
+        displayBorrowedBooks();
+      } else {
+        alert("No copies available to borrow.");
+      }
+    }
+
+    function returnBook(title) {
+      const book = books.find((b) => b.title === title);
+      if (book) {
+        book.copies++;
+        borrowBooks = borrowBooks.filter((b) => b.title !== title);
+        displayBooks();
+        displayBorrowedBooks();
+      }
+    }
+  </script>
+</html>

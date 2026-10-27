@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Events</title>
+    <link rel="stylesheet" href="styles/style.css" />
+    <link rel="stylesheet" href="styles/events.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Events</h1>
+      <p>Welcome to the Events page!</p>
+      <div class="form-group">
+        <label for="event-name">Event Name:</label>
+        <input
+          class="input"
+          type="text"
+          id="event-name"
+          placeholder="Enter event name"
+        />
+        <label for="event-date">Event Date:</label>
+        <input class="input" type="date" id="event-date" />
+        <div class="form-actions">
+          <button
+            id="cancel-update"
+            class="cancel-button"
+            onclick="cancelUpdate()"
+          >
+            Cancel
+          </button>
+          <button id="submit-button" class="add-button" onclick="addEvent()">
+            Add Event
+          </button>
+        </div>
+        <p id="form-error-message" class="form-error-message"></p>
+      </div>
+
+      <div class="event-list-container">
+        <h2>Event List</h2>
+        <p id="event-empty-message" style="display: block">
+          You have not added any events yet.
+        </p>
+        <ul id="event-list"></ul>
+      </div>
+    </div>
+
+    <script>
+      const nameInput = document.getElementById("event-name");
+      const dateInput = document.getElementById("event-date");
+      const submitButton = document.getElementById("submit-button");
+      const cancelUpdateButton = document.getElementById("cancel-update");
+
+      const events = [];
+
+      events.push({ name: "Science Fair", date: "2024-05-15" });
+      events.push({ name: "Art Exhibition", date: "2024-06-10" });
+      events.push({ name: "Sports Day", date: "2024-07-20" });
+
+      displayEvents();
+
+      function addEvent() {
+        const name = nameInput.value.trim();
+        const date = dateInput.value;
+
+        if (name === "" || date === "") {
+          document.getElementById("form-error-message").textContent =
+            "Please fill in both fields.";
+          return;
+        }
+
+        events.push({ name: name, date: date });
+        displayEvents();
+
+        // Clear input fields and error message
+        nameInput.value = "";
+        dateInput.value = "";
+        document.getElementById("form-error-message").textContent = "";
+      }
+
+      function displayEvents() {
+        const eventList = document.getElementById("event-list");
+        eventList.innerHTML = "";
+
+        if (events.length === 0) {
+          document.getElementById("event-empty-message").style.display =
+            "block";
+          return;
+        } else {
+          document.getElementById("event-empty-message").style.display = "none";
+        }
+
+        events.forEach((event, index) => {
+          const listItem = document.createElement("li");
+          listItem.innerHTML = `
+          <div class="event-card">
+            <span class="event-name">${event.name}</span>
+            <span class="event-date">${event.date}</span>
+            <div class="card-actions">
+              <button class="edit-button">
+                Edit
+              </button>
+              <button class="remove-button">
+                Remove
+              </button>
+            </div>
+          </div>
+          `;
+           
+          listItem
+            .querySelector(".remove-button")
+            .addEventListener("click", () => {
+              events.splice(index, 1);
+              displayEvents();
+            });
+            listItem
+            .querySelector(".edit-button")
+            .addEventListener("click", () => {
+                editEvent(index);
+            });
+          eventList.appendChild(listItem);
+        });
+      }
+
+        function cancelUpdate() {
+            nameInput.value = "";
+            dateInput.value = "";
+            submitButton.textContent = "Add Event";
+            submitButton.onclick = addEvent;
+        }
+
+        function editEvent(index) {
+
+            cancelUpdateButton.style.display = "block";
+            const event = events[index];
+            nameInput.value = event.name;
+            dateInput.value = event.date;
+            submitButton.textContent = "Update Event";
+            submitButton.onclick = () => {
+                events[index] = { name: nameInput.value.trim(), date: dateInput.value };
+                displayEvents();
+                nameInput.value = "";
+                dateInput.value = "";   
+                submitButton.textContent = "Add Event";
+                submitButton.onclick = addEvent;
+                
+            };
+        }
+    </script>
+  </body>
+</html>
